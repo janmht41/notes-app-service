@@ -2,6 +2,7 @@ package com.assignment.controller;
 
 import com.assignment.entity.Note;
 import com.assignment.model.AuthenticationRequest;
+import com.assignment.model.NotesRequestModel;
 import com.assignment.service.INotesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -11,23 +12,23 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController()
 @RequiredArgsConstructor
 public class NotesController {
     private final INotesService notesService;
-    @GetMapping("api/v1/notes")
+    @GetMapping("/api/v1/notes")
     public ResponseEntity<List<Note>> getNotes(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken
             ){
      return ResponseEntity.ok(notesService.getNotes(bearerToken));
     }
 
-    @PostMapping("api/v1/notes")
+    @PostMapping("/api/v1/notes")
     public ResponseEntity<Map<String,Object>> saveNote(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken,
-            @RequestBody Note note
+            @RequestBody NotesRequestModel notesRequestModel
     ){
-       notesService.saveNote(bearerToken, note);
-        return ResponseEntity.ok(Map.of("success","works"));
+       notesService.saveNote(bearerToken, notesRequestModel);
+        return ResponseEntity.ok(Map.of("success","Note Created"));
     }
 
 }

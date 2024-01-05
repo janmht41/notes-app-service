@@ -13,6 +13,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -22,6 +24,7 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public void register(SignUpRequest signUpRequest) {
+
         var newUser = User.builder()
                 .firstname(signUpRequest.getFirstName())
                 .lastname(signUpRequest.getLastName())
@@ -42,11 +45,7 @@ public class AuthenticationService {
         } catch (AuthenticationException e) {
             throw new RuntimeException(e);
         }
-        var authenticatedUser = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow();
-      // Todo handle this properly
-
-        return getAuthenticationResponse(authenticatedUser);
+        return getAuthenticationResponse(tempUser);
     }
 
     private AuthenticationResponse getAuthenticationResponse(User user) {

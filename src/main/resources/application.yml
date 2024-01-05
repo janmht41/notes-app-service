@@ -15,6 +15,11 @@ spring:
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+    spring:
+      jackson:
+        serialization:
+          FAIL_ON_EMPTY_BEANS=false:
+
 
 
 

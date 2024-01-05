@@ -2,13 +2,17 @@ package com.assignment.service;
 
 import com.assignment.entity.Note;
 
-import com.assignment.model.AuthenticationRequest;
+import com.assignment.entity.User;
+import com.assignment.model.NotesRequestModel;
 import com.assignment.repository.NoteRepository;
 import com.assignment.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,26 +22,30 @@ public class NotesServiceImpl implements INotesService{
     private final UserRepository userRepository;
     @Override
     public List<Note> getNotes(String bearerToken) {
-        var email = getEmailFrom(bearerToken);
-        return noteRepository.findAllByEmail(email);
+        System.out.println("here bitch");
+        return noteRepository.findNotesByUserId(getUserIdFrom(bearerToken));
     }
 
-    private String getEmailFrom(String bearerToken) {
+    private UUID getUserIdFrom(String bearerToken) {
         var requestToken = bearerToken.substring(7);
-        var email = jwtService.extractUserName(requestToken);
-        return email;
+        var userId = jwtService.extractUserName(requestToken);
+        System.out.println("In controller:" +UUID.fromString(userId));
+        return UUID.fromString(userId);
     }
 
     @Override
-    public void saveNote(String bearerToken, Note note) {
-        var email = getEmailFrom(bearerToken);
-
+    @Transactional
+    public void saveNote(String bearerToken, NotesRequestModel notesRequestModel) {
       var newNote = Note.builder()
-              .title(note.getTitle())
-              .email(email)
-              .content(note.getContent())
+              .title(notesRequestModel.getTitle())
+              .content(notesRequestModel.getContent())
+              .user(getUserFrom(bearerToken))
               .build();
 
         noteRepository.save(newNote);
+    }
+
+    private User getUserFrom(String bearerToken){
+        return userRepository.findByUserId(getUserIdFrom(bearerToken)).get();
     }
 }
