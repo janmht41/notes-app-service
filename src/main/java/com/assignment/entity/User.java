@@ -11,6 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 
 @Entity
 @Data
@@ -21,8 +24,9 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name="user_id")
+    private UUID userId;
 
     private String password;
 
@@ -33,7 +37,7 @@ public class User implements UserDetails {
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Note> notes;
+    private Set<Note> notes;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -44,8 +48,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        // need to do this since email is the unique identifier for us
-        return  email;
+        return  userId.toString();
     }
 
     @Override

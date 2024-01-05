@@ -18,11 +18,11 @@ public class NotesServiceImpl implements INotesService{
     private final UserRepository userRepository;
     @Override
     public List<Note> getNotes(String bearerToken) {
-        var email = getEmail(bearerToken);
+        var email = getEmailFrom(bearerToken);
         return noteRepository.findAllByEmail(email);
     }
 
-    private String getEmail(String bearerToken) {
+    private String getEmailFrom(String bearerToken) {
         var requestToken = bearerToken.substring(7);
         var email = jwtService.extractUserName(requestToken);
         return email;
@@ -30,7 +30,7 @@ public class NotesServiceImpl implements INotesService{
 
     @Override
     public void saveNote(String bearerToken, Note note) {
-        var email = getEmail(bearerToken);
+        var email = getEmailFrom(bearerToken);
 
       var newNote = Note.builder()
               .title(note.getTitle())

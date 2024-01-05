@@ -9,6 +9,7 @@ import com.assignment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public AuthenticationResponse register(SignUpRequest signUpRequest) {
+    public void register(SignUpRequest signUpRequest) {
         var newUser = User.builder()
                 .firstname(signUpRequest.getFirstName())
                 .lastname(signUpRequest.getLastName())
@@ -29,17 +30,22 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         userRepository.save(newUser);
-        return getAuthenticationResponse(newUser);
-
     }
     public AuthenticationResponse authenticate(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword())
-        );
+        var tempUser = getUserByEmail(loginRequest.getEmail());
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            tempUser.getUserId(),
+                            loginRequest.getPassword())
+            );
+        } catch (AuthenticationException e) {
+            throw new RuntimeException(e);
+        }
         var authenticatedUser = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow();// Todo handle this properly
+                .orElseThrow();
+      // Todo handle this properly
+
         return getAuthenticationResponse(authenticatedUser);
     }
 
@@ -48,5 +54,9 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    private User getUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow();
     }
 }

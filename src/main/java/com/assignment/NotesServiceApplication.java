@@ -10,7 +10,8 @@ public class NotesServiceApplication {
 	 * 1) model classes for interim objects
 	 * 2) remaining authenticated endpoints
 	 * 3) refactor entity classes and design approach for one to many relationship
-	 * 4)
+	 * check implementation 'org.hibernate:hibernate-search-orm'
+	 *
 	 */
 	public static void main(String[] args) {
 		SpringApplication.run(NotesServiceApplication.class, args);

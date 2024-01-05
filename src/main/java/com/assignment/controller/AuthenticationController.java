@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -17,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     @PostMapping("/signup")
-    public ResponseEntity<AuthenticationResponse> signup(
-            @RequestBody SignUpRequest signUpRequest
+    public ResponseEntity<Map<String,Object>> signup(
+            @RequestBody @Valid SignUpRequest signUpRequest
     ){
-        return ResponseEntity.ok(authenticationService.register(signUpRequest));
+        authenticationService.register(signUpRequest);
+        return ResponseEntity.ok(Map.of("Success","registration successful"));
     }
 
     @PostMapping("/login")
