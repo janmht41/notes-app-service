@@ -1,8 +1,8 @@
 package com.assignment.controller;
 
-import com.assignment.entity.Note;
-import com.assignment.model.AuthenticationRequest;
+
 import com.assignment.model.NotesRequestModel;
+import com.assignment.repository.NoteDTO;
 import com.assignment.service.INotesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class NotesController {
     private final INotesService notesService;
     @GetMapping("/api/v1/notes")
-    public ResponseEntity<List<Note>> getNotes(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken
+    public ResponseEntity<List<NoteDTO>> getNotes(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken
             ){
      return ResponseEntity.ok(notesService.getNotes(bearerToken));
     }

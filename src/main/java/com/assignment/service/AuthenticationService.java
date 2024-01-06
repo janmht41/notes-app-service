@@ -2,33 +2,40 @@ package com.assignment.service;
 
 import com.assignment.entity.Role;
 import com.assignment.entity.User;
+import com.assignment.exception.UserAlreadyExistsException;
 import com.assignment.model.AuthenticationResponse;
 import com.assignment.model.LoginRequest;
 import com.assignment.model.SignUpRequest;
 import com.assignment.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public void register(SignUpRequest signUpRequest) {
-
+    public void register(SignUpRequest signUpRequest) throws Exception{
+        var email = signUpRequest.getEmail();
+        userRepository.findByEmail(email)
+                .ifPresent(existingUser -> {
+                    log.error("user with mail "+email+" already exists!");
+                    throw new UserAlreadyExistsException("Duplicate Registration");
+                });
         var newUser = User.builder()
                 .firstname(signUpRequest.getFirstName())
                 .lastname(signUpRequest.getLastName())
-                .email(signUpRequest.getEmail())
+                .email(email)
                 .password(passwordEncoder.encode(signUpRequest.getPassword()))
                 .role(Role.USER)
                 .build();
@@ -43,7 +50,7 @@ public class AuthenticationService {
                             loginRequest.getPassword())
             );
         } catch (AuthenticationException e) {
-            throw new RuntimeException(e);
+           log.error("Authentication failed: "+e);
         }
         return getAuthenticationResponse(tempUser);
     }

@@ -9,8 +9,8 @@ public class NotesServiceApplication {
 	 * TODO
 	 * 1) model classes for interim objects
 	 * 2) remaining authenticated endpoints
-	 * 3) refactor entity classes and design approach for one to many relationship
-	 * check implementation 'org.hibernate:hibernate-search-orm'
+	 *
+	 *check implementation 'org.hibernate:hibernate-search-orm'
 	 *
 	 */
 	public static void main(String[] args) {
