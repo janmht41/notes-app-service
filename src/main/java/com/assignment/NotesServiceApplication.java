@@ -7,10 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class NotesServiceApplication {
 	/**
 	 * TODO
-	 * 1) model classes for interim objects
-	 * 2) remaining authenticated endpoints
 	 *
-	 *check implementation 'org.hibernate:hibernate-search-orm'
+	 * 1) remaining authenticated endpoints
+	 *
+	 * 2)check implementation 'org.hibernate:hibernate-search-orm' for
+	 * GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
 	 *
 	 */
 	public static void main(String[] args) {

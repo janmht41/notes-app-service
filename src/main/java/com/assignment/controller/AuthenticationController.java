@@ -28,7 +28,7 @@ public class AuthenticationController {
     @PostMapping("/signup")
     public ResponseEntity<Map<String,Object>> signup(
             @RequestBody @Valid SignUpRequest signUpRequest
-    ) throws Exception {
+    ) {
         authenticationService.register(signUpRequest);
         return ResponseEntity.ok(Map.of("Success","registration successful"));
     }

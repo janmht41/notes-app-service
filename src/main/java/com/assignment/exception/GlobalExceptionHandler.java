@@ -12,4 +12,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(NoteNotFoundException.class)
+    public ResponseEntity<String> handleNoteNotFoundExc(NoteNotFoundException notFoundException){
+        return new ResponseEntity<>(notFoundException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PermissionException.class)
+    public ResponseEntity<String> handleNoteNotFoundExc(PermissionException permissionException){
+        return new ResponseEntity<>(permissionException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

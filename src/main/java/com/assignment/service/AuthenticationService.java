@@ -25,7 +25,7 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    public void register(SignUpRequest signUpRequest) throws Exception{
+    public void register(SignUpRequest signUpRequest) throws UserAlreadyExistsException{
         var email = signUpRequest.getEmail();
         userRepository.findByEmail(email)
                 .ifPresent(existingUser -> {
