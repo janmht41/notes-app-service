@@ -6,11 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.FullTextField;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.Indexed;
 
 import java.util.Set;
-
+@Indexed
 @Entity
 @Builder
 @Data
@@ -25,9 +28,13 @@ public class Note {
     private Long id;
 
     @Column(name="note_title")
+    @NaturalId
+    @FullTextField
     private String title;
 
     @Column(name = "note_content")
+    @NaturalId
+    @FullTextField
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,16 +44,5 @@ public class Note {
 
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<Share> shares;
-
-//    public void addShare(Share share)
-//    {
-//        shares.add(share);
-//    }
-//    public Note removeShare(Share share)
-//    {
-//        shares.remove(share);
-//        shares.setNote(null);
-//        return this;
-//    }
 
 }

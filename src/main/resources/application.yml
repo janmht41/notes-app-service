@@ -12,13 +12,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        search:
+          backend:
+            type: lucene
+            directory.root: ./data/index
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
-    spring:
-      jackson:
-        serialization:
-          FAIL_ON_EMPTY_BEANS=false:
+#    spring:
+#      jackson:
+#        serialization:
+#          FAIL_ON_EMPTY_BEANS=false:
 
 
 

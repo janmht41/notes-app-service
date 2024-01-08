@@ -69,11 +69,10 @@ public class NotesController {
          return ResponseEntity.ok(Map.of("success","Note shared"));
     }
 /*
-]
-Todo
-
-    POST /api/notes/:id/share: share a note with another user for the authenticated user.
+TODO
     GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
  */
+//    @GetMapping(value = "/api/v1/notes/search")
+//    public
 
 }

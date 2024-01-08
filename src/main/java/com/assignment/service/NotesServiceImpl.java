@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,10 +30,11 @@ public class NotesServiceImpl implements INotesService{
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
     private final ShareRepository shareRepository;
+
+    private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("title","content");
     @Override
     public List<NoteDTO> getNotesForUser(String bearerToken) {
-        var allByUser = noteRepository.findAllByUser(getUserFrom(bearerToken));
-        return allByUser;
+        return noteRepository.findAllByUser(getUserFrom(bearerToken));
     }
 
     @Override
@@ -75,14 +77,14 @@ public class NotesServiceImpl implements INotesService{
 
     @Override
     @Transactional
-    public void deleteNote(String ownerBtoken,Long noteId) throws NoteNotFoundException {
+    public void deleteNote(String ownerToken,Long noteId) throws NoteNotFoundException {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found with id: " + noteId));
-        var user = getUserFrom(ownerBtoken);
-        var userId = getUserFrom(ownerBtoken).getUserId();
+        var noteOwner = getUserFrom(ownerToken);
+        var userId = getUserFrom(ownerToken).getUserId();
         validateOwnership(userId, note, "delete");
-       if(isNoteShared(user, note)) shareRepository.deleteAllSharedBy(noteId,user);
-        noteRepository.deleteById(noteId);
+       if(isNoteShared(noteOwner, note)) shareRepository.deleteAllSharedBy(noteId,noteOwner);
+       noteRepository.deleteById(noteId);
     }
 
     @Transactional
@@ -99,7 +101,7 @@ public class NotesServiceImpl implements INotesService{
         User receiverUser = userRepository.findByUserId(receiverUserId)
                 .orElseThrow(() -> new RuntimeException("Receiver user not found with id: " + receiverUserId));
 
-        // Check if the note is already shared with the receiver user
+
         List<Share> existingShares = shareRepository.findByReceiverUserAndNote(receiverUser, note);
         if (!existingShares.isEmpty()) {
             throw new RuntimeException("Note is already shared with the receiver user");
@@ -121,6 +123,28 @@ public class NotesServiceImpl implements INotesService{
         Share share = shareRepository.findById(shareId)
                 .orElseThrow(() -> new RuntimeException("Share not found with id: " + shareId));
         shareRepository.delete(share);
+    }
+
+    /**
+     * @param text: text to search for
+     * @param limit: maximum number of elements to search for
+     * @param fields: name of all the fields to search on
+     */
+    @Override
+    public List<Note> searchNotes(String text, List<String> fields, int limit) {
+
+        List<String> fieldsToSearchBy = fields.isEmpty() ? SEARCHABLE_FIELDS : fields;
+
+        boolean containsInvalidField = fieldsToSearchBy
+                .stream()
+                .anyMatch(f -> !SEARCHABLE_FIELDS.contains(f));
+
+        if(containsInvalidField) {
+            throw new IllegalArgumentException();
+        }
+
+        return noteRepository.searchBy(
+                text, limit, fieldsToSearchBy.toArray(new String[0]));
     }
 
     private User getUserFrom(String bearerToken){

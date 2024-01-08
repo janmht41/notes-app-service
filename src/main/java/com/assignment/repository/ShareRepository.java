@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 public interface ShareRepository extends JpaRepository<Share, Long> {
@@ -17,11 +15,7 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
 
     @Modifying
     @Query("DELETE Share s WHERE s.note.id = ?1 AND s.senderUser = ?2")
-    void deleteAllSharedBy(Long noteId, User user);
+    void deleteAllSharedBy(Long noteId, User senderUser);
 
     List<Share> findBySenderUserAndNote(User senderUser, Note note);
 }
-////
-//@Modifying
-//@Query("delete from Fruit f where f.name=:name or f.color=:color")
-//List<int> deleteFruits(@Param("name") String name, @Param("color") String color);
