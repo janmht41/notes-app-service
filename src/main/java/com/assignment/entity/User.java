@@ -41,6 +41,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Note> notes;
 
+    @OneToMany(mappedBy = "receiverUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Share> receivedShares;
+
+    @OneToMany(mappedBy = "senderUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Share> sentShares;
+
     @Enumerated(EnumType.STRING)
     private Role role;
     @Override

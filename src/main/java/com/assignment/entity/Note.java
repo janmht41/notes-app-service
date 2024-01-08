@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.util.Set;
+
 @Entity
 @Builder
 @Data
@@ -18,6 +20,7 @@ import org.hibernate.annotations.OnDeleteAction;
 public class Note {
     @Id
     @Column(name = "note_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -31,5 +34,19 @@ public class Note {
     @JoinColumn(name = "user_id" )
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
+    @OneToMany(mappedBy = "note", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Set<Share> shares;
+
+//    public void addShare(Share share)
+//    {
+//        shares.add(share);
+//    }
+//    public Note removeShare(Share share)
+//    {
+//        shares.remove(share);
+//        shares.setNote(null);
+//        return this;
+//    }
 
 }
