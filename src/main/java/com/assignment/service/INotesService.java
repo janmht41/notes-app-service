@@ -1,6 +1,5 @@
 package com.assignment.service;
 
-import com.assignment.entity.Note;
 import com.assignment.entity.Share;
 import com.assignment.model.NotesRequestModel;
 import com.assignment.repository.NoteDTO;
@@ -29,5 +28,5 @@ public interface INotesService {
 
      UUID getUserIdFrom(String bearerToken);
 
-     List<Note> searchNotes(String text, List<String> fields, int limit);
+     List<NoteDTO> searchNotes(String text, List<String> fields, int limit);
 }

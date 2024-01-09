@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,14 +54,14 @@ public class NotesServiceImpl implements INotesService{
               .content(notesRequestModel.getContent())
               .user(getUserFrom(bearerToken))
               .build();
-
+        log.info(String.valueOf(notesRequestModel.getContent().length()));
         noteRepository.save(newNote);
     }
 
     @Override
     @Transactional
     public void updateNoteById(Long noteId, NoteDTO noteDTO) {
-            var note = noteRepository.findById(noteId).get();
+            var note = noteRepository.findById(noteId).orElseThrow();
             var newNote = Note.builder()
                     .title(noteDTO.title())
                     .content(noteDTO.content())
@@ -71,7 +72,7 @@ public class NotesServiceImpl implements INotesService{
 
     @Override
     public NoteDTO getNoteById(Long noteId) {
-        var note =   noteRepository.findById(noteId).get();
+        var note =   noteRepository.findById(noteId).orElseThrow();
         return new NoteDTO(noteId,note.getTitle(),note.getContent());
     }
 
@@ -126,12 +127,12 @@ public class NotesServiceImpl implements INotesService{
     }
 
     /**
-     * @param text: text to search for
-     * @param limit: maximum number of elements to search for
-     * @param fields: name of all the fields to search on
+     * @param text   text to search for
+     * @param limit  maximum number of elements to search for
+     * @param fields name of all the fields to search on
      */
     @Override
-    public List<Note> searchNotes(String text, List<String> fields, int limit) {
+    public List<NoteDTO> searchNotes(String text, List<String> fields, int limit) {
 
         List<String> fieldsToSearchBy = fields.isEmpty() ? SEARCHABLE_FIELDS : fields;
 
@@ -144,11 +145,15 @@ public class NotesServiceImpl implements INotesService{
         }
 
         return noteRepository.searchBy(
-                text, limit, fieldsToSearchBy.toArray(new String[0]));
+                text, limit, fieldsToSearchBy.toArray(new String[0]))
+                .stream()
+                .map(note->new NoteDTO(note.getId(),note.getTitle(),note.getContent()))
+                .collect(Collectors.toList());
+
     }
 
     private User getUserFrom(String bearerToken){
-        return userRepository.findByUserId(getUserIdFrom(bearerToken)).get();
+        return userRepository.findByUserId(getUserIdFrom(bearerToken)).orElseThrow();
     }
 
     private boolean isNoteShared(User user, Note note){

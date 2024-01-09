@@ -32,7 +32,7 @@ public class Note {
     @FullTextField
     private String title;
 
-    @Column(name = "note_content")
+    @Column(name = "note_content",length = 2048)
     @NaturalId
     @FullTextField
     private String content;

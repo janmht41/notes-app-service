@@ -1,9 +1,12 @@
 package com.assignment.controller;
 
 
+import com.assignment.entity.Note;
 import com.assignment.model.NotesRequestModel;
+import com.assignment.model.NotesSearchReqDTO;
 import com.assignment.repository.NoteDTO;
 import com.assignment.service.INotesService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -72,7 +75,13 @@ public class NotesController {
 TODO
     GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
  */
-//    @GetMapping(value = "/api/v1/notes/search")
-//    public
+    @GetMapping(value = "/api/v1/notes/search")
+    public ResponseEntity<List<NoteDTO>> searchNotes(
+            @RequestBody @Valid NotesSearchReqDTO notesSearchReqDTO
+            ){
+        return ResponseEntity.ok(notesService.searchNotes(notesSearchReqDTO.getText(),
+                notesSearchReqDTO.getFields(),
+                notesSearchReqDTO.getLimit()));
+    }
 
 }

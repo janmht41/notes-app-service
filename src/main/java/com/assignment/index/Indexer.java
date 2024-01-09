@@ -1,19 +1,21 @@
 package com.assignment.index;
 
 import com.assignment.exception.IndexException;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.hibernate.search.mapper.orm.Search;
 import org.hibernate.search.mapper.orm.massindexing.MassIndexer;
 import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.EntityManager;
 
 @Transactional
 @Component
 public class Indexer {
 
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     private static final int THREAD_NUMBER = 4;
 
@@ -24,7 +26,7 @@ public class Indexer {
     public void indexPersistedData(String indexClassName) throws IndexException {
 
         try {
-            SearchSession searchSession = Search.session(entityManager);
+            SearchSession searchSession = Search.session((Session) entityManager);
 
             Class<?> classToIndex = Class.forName(indexClassName);
             MassIndexer indexer =

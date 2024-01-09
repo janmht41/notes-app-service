@@ -1,5 +1,6 @@
 package com.assignment.repository;
 
+import com.assignment.entity.Note;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
@@ -30,9 +31,7 @@ implements SearchRepository<T,ID> {
 
     @Override
     public List<T> searchBy(String text, int limit, String... fields) {
-
         SearchResult<T> result = getSearchResult(text, limit, fields);
-
         return result.hits();
     }
 

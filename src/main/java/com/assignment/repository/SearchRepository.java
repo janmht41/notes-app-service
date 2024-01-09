@@ -1,5 +1,6 @@
 package com.assignment.repository;
 
+import com.assignment.entity.Note;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
