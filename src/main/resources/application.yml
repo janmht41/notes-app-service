@@ -24,6 +24,10 @@ spring:
 #        serialization:
 #          FAIL_ON_EMPTY_BEANS=false:
 
+application:
+  signing:
+    key:
+      SECRET_KEY: DUMMY
 
 
 

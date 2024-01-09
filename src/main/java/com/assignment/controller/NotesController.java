@@ -1,7 +1,5 @@
 package com.assignment.controller;
 
-
-import com.assignment.entity.Note;
 import com.assignment.model.NotesRequestModel;
 import com.assignment.model.NotesSearchReqDTO;
 import com.assignment.repository.NoteDTO;
@@ -38,17 +36,19 @@ public class NotesController {
     @PutMapping("/api/v1/notes/{id}")
     public ResponseEntity<Map<String,Object>>updateNote(
             @RequestBody NoteDTO noteDTO,
-            @PathVariable(value="id")Long id
+            @PathVariable(value="id")Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String bToken
     ){
-        notesService.updateNoteById(id,noteDTO);
+        notesService.updateNoteById(bToken,id,noteDTO);
         return ResponseEntity.ok(Map.of("success","Note Updated"));
     }
 
     @GetMapping("api/v1/notes/{id}")
     public ResponseEntity<NoteDTO> getNote(
-            @PathVariable(value = "id") Long id
+            @PathVariable(value = "id") Long id,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String bToken
     ) {
-        return  ResponseEntity.ok(notesService.getNoteById(id));
+        return  ResponseEntity.ok(notesService.getNoteById(bToken,id));
     }
 
     @DeleteMapping( value="api/v1/notes/{id}")
@@ -71,15 +71,14 @@ public class NotesController {
           notesService.shareNote(id,userId, UUID.fromString(recipientId) );
          return ResponseEntity.ok(Map.of("success","Note shared"));
     }
-/*
-TODO
-    GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
- */
     @GetMapping(value = "/api/v1/notes/search")
     public ResponseEntity<List<NoteDTO>> searchNotes(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String bToken,
             @RequestBody @Valid NotesSearchReqDTO notesSearchReqDTO
             ){
-        return ResponseEntity.ok(notesService.searchNotes(notesSearchReqDTO.getText(),
+        return ResponseEntity.ok(notesService.searchNotes(
+                bToken,
+                notesSearchReqDTO.getText(),
                 notesSearchReqDTO.getFields(),
                 notesSearchReqDTO.getLimit()));
     }

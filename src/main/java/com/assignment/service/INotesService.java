@@ -14,11 +14,11 @@ public interface INotesService {
      List<NoteDTO> getNotesForUser(String bearerToken);
 
      void saveNote(String bearerToken, NotesRequestModel notesRequestModel);
-     void updateNoteById(Long noteId, NoteDTO noteDTO);
+     void updateNoteById(String bToken,Long noteId, NoteDTO noteDTO);
 
-     NoteDTO getNoteById(Long noteId);
+     NoteDTO getNoteById(String bToken,Long noteId);
 
-     void deleteNote(String ownerBtoken,Long noteId);
+     void deleteNote(String ownerToken,Long noteId);
 
      @Transactional
      Share shareNote(Long noteId, UUID senderUserId, UUID receiverUserId);
@@ -28,5 +28,5 @@ public interface INotesService {
 
      UUID getUserIdFrom(String bearerToken);
 
-     List<NoteDTO> searchNotes(String text, List<String> fields, int limit);
+     List<NoteDTO> searchNotes(String ownerToken, String text, List<String> fields, int limit);
 }

@@ -4,6 +4,7 @@ import com.assignment.entity.Note;
 
 import com.assignment.entity.Share;
 import com.assignment.entity.User;
+import com.assignment.exception.InvalidSearchFieldException;
 import com.assignment.exception.NoteNotFoundException;
 import com.assignment.exception.PermissionException;
 import com.assignment.model.NotesRequestModel;
@@ -54,14 +55,14 @@ public class NotesServiceImpl implements INotesService{
               .content(notesRequestModel.getContent())
               .user(getUserFrom(bearerToken))
               .build();
-        log.info(String.valueOf(notesRequestModel.getContent().length()));
         noteRepository.save(newNote);
     }
 
     @Override
     @Transactional
-    public void updateNoteById(Long noteId, NoteDTO noteDTO) {
+    public void updateNoteById(String bToken,Long noteId, NoteDTO noteDTO) {
             var note = noteRepository.findById(noteId).orElseThrow();
+            validateOwnership(getUserIdFrom(bToken),note,"update");
             var newNote = Note.builder()
                     .title(noteDTO.title())
                     .content(noteDTO.content())
@@ -71,8 +72,10 @@ public class NotesServiceImpl implements INotesService{
     }
 
     @Override
-    public NoteDTO getNoteById(Long noteId) {
-        var note =   noteRepository.findById(noteId).orElseThrow();
+    public NoteDTO getNoteById(String bToken, Long noteId) {
+        var note =   noteRepository.findById(noteId)
+                .orElseThrow(() -> new NoteNotFoundException("Note not found with id: " + noteId));
+        validateOwnership(getUserIdFrom(bToken),note,"fetch");
         return new NoteDTO(noteId,note.getTitle(),note.getContent());
     }
 
@@ -132,7 +135,7 @@ public class NotesServiceImpl implements INotesService{
      * @param fields name of all the fields to search on
      */
     @Override
-    public List<NoteDTO> searchNotes(String text, List<String> fields, int limit) {
+    public List<NoteDTO> searchNotes(String bToken, String text, List<String> fields, int limit) {
 
         List<String> fieldsToSearchBy = fields.isEmpty() ? SEARCHABLE_FIELDS : fields;
 
@@ -141,13 +144,15 @@ public class NotesServiceImpl implements INotesService{
                 .anyMatch(f -> !SEARCHABLE_FIELDS.contains(f));
 
         if(containsInvalidField) {
-            throw new IllegalArgumentException();
+            throw new InvalidSearchFieldException("Not a valid searchable field");
         }
+        List<NoteDTO> searchableNotes = getNotesForUser(bToken);
 
         return noteRepository.searchBy(
                 text, limit, fieldsToSearchBy.toArray(new String[0]))
                 .stream()
                 .map(note->new NoteDTO(note.getId(),note.getTitle(),note.getContent()))
+                .filter(searchableNotes::contains)
                 .collect(Collectors.toList());
 
     }

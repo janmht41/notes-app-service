@@ -19,7 +19,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PermissionException.class)
-    public ResponseEntity<String> handleNoteNotFoundExc(PermissionException permissionException){
+    public ResponseEntity<String> handlePermissionExc(PermissionException permissionException){
         return new ResponseEntity<>(permissionException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidSearchFieldException.class)
+    public ResponseEntity<String> handleInvalidSearchFieldExc(InvalidSearchFieldException invalidSearchFieldException){
+        return new ResponseEntity<>(invalidSearchFieldException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

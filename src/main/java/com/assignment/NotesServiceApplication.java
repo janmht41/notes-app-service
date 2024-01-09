@@ -11,14 +11,10 @@ import org.springframework.context.annotation.Bean;
 public class NotesServiceApplication {
 	/**
 	 * TODO
-	 *
-	 * 1) remaining authenticated endpoints
-	 *
-	 * 2)check implementation 'org.hibernate:hibernate-search-orm' for
-	 * GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
-	 *
+	 * 1) refactor to follow best practices
+	 * 2)ensure search only works on notes owned by current user
 	 * 3)better way to handle exceptions/errors
-	 *
+	 * 4) redis
 	 */
 	public static void main(String[] args) {
 		SpringApplication.run(NotesServiceApplication.class, args);
