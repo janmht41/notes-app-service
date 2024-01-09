@@ -115,14 +115,6 @@ public class NotesServiceImpl implements INotesService{
 
     }
 
-    @Transactional
-    @Override
-    public void unshareNote(Long shareId) {
-        Share share = shareRepository.findById(shareId)
-                .orElseThrow(() -> new RuntimeException("Share not found with id: " + shareId));
-        shareRepository.delete(share);
-    }
-
     /**
      * @param text   text to search for
      * @param limit  maximum number of elements to search for
