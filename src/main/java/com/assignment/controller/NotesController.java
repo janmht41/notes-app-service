@@ -4,6 +4,7 @@ import com.assignment.model.NotesRequestModel;
 import com.assignment.model.NotesSearchReqDTO;
 import com.assignment.repository.NoteDTO;
 import com.assignment.service.INotesService;
+import com.assignment.utils.NoteUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class NotesController {
     private final INotesService notesService;
+    private final NoteUtils noteUtils;
     @GetMapping("/api/v1/notes")
     public ResponseEntity<List<NoteDTO>> getNotes(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken
             ){
@@ -67,7 +69,7 @@ public class NotesController {
             @PathVariable(value = "id")Long id,
             @RequestParam(value = "recipientId") String recipientId
     ){
-          var userId = notesService.getUserIdFrom(bToken);
+          var userId = noteUtils.getUserIdFrom(bToken);
           notesService.shareNote(id,userId, UUID.fromString(recipientId) );
          return ResponseEntity.ok(Map.of("success","Note shared"));
     }

@@ -26,7 +26,5 @@ public interface INotesService {
      @Transactional
      void unshareNote(Long shareId);
 
-     UUID getUserIdFrom(String bearerToken);
-
      List<NoteDTO> searchNotes(String ownerToken, String text, List<String> fields, int limit);
 }

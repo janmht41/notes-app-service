@@ -6,12 +6,12 @@ import com.assignment.entity.Share;
 import com.assignment.entity.User;
 import com.assignment.exception.InvalidSearchFieldException;
 import com.assignment.exception.NoteNotFoundException;
-import com.assignment.exception.PermissionException;
 import com.assignment.model.NotesRequestModel;
 import com.assignment.repository.NoteDTO;
 import com.assignment.repository.NoteRepository;
 import com.assignment.repository.ShareRepository;
 import com.assignment.repository.UserRepository;
+import com.assignment.utils.NoteUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,23 +28,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class NotesServiceImpl implements INotesService{
-    private final JwtService jwtService;
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
     private final ShareRepository shareRepository;
-
+    private final NoteUtils noteUtils;
     private static final List<String> SEARCHABLE_FIELDS = Arrays.asList("title","content");
     @Override
     public List<NoteDTO> getNotesForUser(String bearerToken) {
-        return noteRepository.findAllByUser(getUserFrom(bearerToken));
-    }
-
-    @Override
-    public UUID getUserIdFrom(String bearerToken) {
-        var requestToken = bearerToken.substring(7);
-        var userId = jwtService.extractUserName(requestToken);
-        log.info("In Application " +userId);
-        return UUID.fromString(userId);
+        return noteRepository.findAllByUser(noteUtils.getUserFrom(bearerToken));
     }
 
     @Override
@@ -53,7 +44,7 @@ public class NotesServiceImpl implements INotesService{
       var newNote = Note.builder()
               .title(notesRequestModel.getTitle())
               .content(notesRequestModel.getContent())
-              .user(getUserFrom(bearerToken))
+              .user(noteUtils.getUserFrom(bearerToken))
               .build();
         noteRepository.save(newNote);
     }
@@ -62,20 +53,23 @@ public class NotesServiceImpl implements INotesService{
     @Transactional
     public void updateNoteById(String bToken,Long noteId, NoteDTO noteDTO) {
             var note = noteRepository.findById(noteId).orElseThrow();
-            validateOwnership(getUserIdFrom(bToken),note,"update");
+            var userId = noteUtils.getUserIdFrom(bToken);
+            noteUtils.validateOwnership(userId,note,"update");
             var newNote = Note.builder()
                     .title(noteDTO.title())
                     .content(noteDTO.content())
                     .user(note.getUser())
                     .build();
             noteRepository.save(newNote);
+
     }
 
     @Override
     public NoteDTO getNoteById(String bToken, Long noteId) {
         var note =   noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found with id: " + noteId));
-        validateOwnership(getUserIdFrom(bToken),note,"fetch");
+        var userId = noteUtils.getUserIdFrom(bToken);
+        noteUtils.validateOwnership(userId,note,"update");
         return new NoteDTO(noteId,note.getTitle(),note.getContent());
     }
 
@@ -84,10 +78,10 @@ public class NotesServiceImpl implements INotesService{
     public void deleteNote(String ownerToken,Long noteId) throws NoteNotFoundException {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NoteNotFoundException("Note not found with id: " + noteId));
-        var noteOwner = getUserFrom(ownerToken);
-        var userId = getUserFrom(ownerToken).getUserId();
-        validateOwnership(userId, note, "delete");
-       if(isNoteShared(noteOwner, note)) shareRepository.deleteAllSharedBy(noteId,noteOwner);
+        var noteOwner = noteUtils.getUserFrom(ownerToken);
+        var userId = noteUtils.getUserFrom(ownerToken).getUserId();
+        noteUtils.validateOwnership(userId, note, "delete");
+       if(noteUtils.isNoteShared(noteOwner, note)) shareRepository.deleteAllSharedBy(noteId,noteOwner);
        noteRepository.deleteById(noteId);
     }
 
@@ -100,7 +94,7 @@ public class NotesServiceImpl implements INotesService{
         User senderUser = userRepository.findByUserId(senderUserId)
                 .orElseThrow(() -> new RuntimeException("Sender user not found with id: " + senderUserId));
 
-        validateOwnership(senderUserId,note,"share");
+        noteUtils.validateOwnership(senderUserId,note,"share");
 
         User receiverUser = userRepository.findByUserId(receiverUserId)
                 .orElseThrow(() -> new RuntimeException("Receiver user not found with id: " + receiverUserId));
@@ -154,22 +148,5 @@ public class NotesServiceImpl implements INotesService{
                 .map(note->new NoteDTO(note.getId(),note.getTitle(),note.getContent()))
                 .filter(searchableNotes::contains)
                 .collect(Collectors.toList());
-
-    }
-
-    private User getUserFrom(String bearerToken){
-        return userRepository.findByUserId(getUserIdFrom(bearerToken)).orElseThrow();
-    }
-
-    private boolean isNoteShared(User user, Note note){
-       return !shareRepository.findBySenderUserAndNote(user,note).isEmpty();
-    }
-
-    private void validateOwnership(UUID senderUserId, Note note, String operation){
-        log.info(senderUserId+"  "+ note.getUser().getUserId());
-        if(!senderUserId.toString().equalsIgnoreCase( note.getUser().getUserId().toString() )){
-            log.error("user doesn't own this note");
-            throw new PermissionException("user doesn't have permission to "+ operation+" this note");
-        }
     }
 }
