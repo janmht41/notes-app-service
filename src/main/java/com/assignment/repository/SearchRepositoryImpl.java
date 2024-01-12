@@ -1,6 +1,5 @@
 package com.assignment.repository;
 
-import com.assignment.entity.Note;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
